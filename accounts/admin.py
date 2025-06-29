@@ -13,7 +13,7 @@ class UserAdmin(BaseUserAdmin):
     fieldsets = (
         (None, {'fields': ('phone', 'password')}),
         (_('اطلاعات شخصی'), {'fields': ('full_name',)}),
-        (_('دسترسی‌ها'), {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        (_('دسترسی‌ها'), {'fields': ('role', 'is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
         (_('تاریخ‌ها'), {'fields': ('last_login',)}),
     )
 
