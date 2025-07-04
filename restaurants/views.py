@@ -1,42 +1,41 @@
 from rest_framework import viewsets, permissions, generics
 from rest_framework.exceptions import PermissionDenied
 from .permissions import IsRestaurantOwner, IsCategoryOwner, IsMenuItemOwner
-from .models import Restaurant, MenuCategory, MenuItem
-from .serializers import RestaurantSerializer, MenuCategorySerializer, MenuItemSerializer
+from .models import Restaurant, MenuCategory, MenuItem, RestaurantGallery
+from .serializers import RestaurantSerializer, MenuCategorySerializer, MenuItemSerializer, RestaurantGallerySerializer
 
 
-class RestaurantListCreateView(generics.ListCreateAPIView):
+class RestaurantListView(generics.ListAPIView):
+    """
+    api for listing all restaurants
+    """
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantSerializer
-
-    def get_permissions(self):
-        if self.request.method == 'GET':
-            return [permissions.AllowAny()]
-        return [permissions.IsAuthenticated(), IsRestaurantOwner()]
-
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+    permission_classes = [permissions.AllowAny]
 
 
-class RestaurantRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+class RestaurantDetailView(generics.RetrieveAPIView):
+    """
+    api for detail of a restaurant
+    """
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantSerializer
-    lookup_field = 'id'  # می‌تونیم slug هم بذاریم
+    lookup_field = 'slug'
+    permission_classes = [permissions.AllowAny]
 
-    def get_permissions(self):
-        if self.request.method == 'GET':
-            return [permissions.AllowAny()]
-        return [permissions.IsAuthenticated(), IsRestaurantOwner()]
 
-    def perform_update(self, serializer):
-        if self.request.user != serializer.instance.owner:
-            raise PermissionDenied("شما اجازه ویرایش این رستوران را ندارید.")
-        serializer.save()
+class RestaurantRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    """
+    api for updating restaurant fields by owner
+    """
+    serializer_class = RestaurantSerializer
+    permission_classes = [permissions.IsAuthenticated, IsRestaurantOwner]
 
-    def perform_destroy(self, instance):
-        if self.request.user != instance.owner:
-            raise PermissionDenied("شما اجازه حذف این رستوران را ندارید.")
-        instance.delete()
+    def get_queryset(self):
+        return Restaurant.objects.filter(owner=self.request.user)
+
+    def get_object(self):
+        return self.get_queryset().first()
 
 
 class MenuCategoryListCreateView(generics.ListCreateAPIView):
@@ -122,3 +121,33 @@ class MenuItemDetailView(generics.RetrieveUpdateDestroyAPIView):
         if instance.category.restaurant.owner != self.request.user:
             raise PermissionDenied("شما اجازه حذف این آیتم را ندارید.")
         instance.delete()
+
+
+class RestaurantGalleryListCreateView(generics.ListCreateAPIView):
+    """
+    api for create and list gallery of restaurant
+    """
+    serializer_class = RestaurantGallerySerializer
+    permission_classes = [permissions.IsAuthenticated, IsRestaurantOwner]
+
+    def get_queryset(self):
+        restaurant = Restaurant.objects.filter(owner=self.request.user).first()
+        return restaurant.gallery.all() if restaurant else RestaurantGallery.objects.none()
+
+    def perform_create(self, serializer):
+        restaurant = Restaurant.objects.filter(owner=self.request.user).first()
+        serializer.save(restaurant=restaurant)
+
+
+class RestaurantGalleryDeleteView(generics.DestroyAPIView):
+    """
+    api for delete pic from gallery of restaurant
+    """
+    queryset = RestaurantGallery.objects.all()
+    serializer_class = RestaurantGallerySerializer
+    permission_classes = [permissions.IsAuthenticated, IsRestaurantOwner]
+
+    def get_object(self):
+        obj = super().get_object()
+        self.check_object_permissions(self.request, obj)
+        return obj

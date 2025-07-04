@@ -45,5 +45,5 @@ class RestaurantSerializer(serializers.ModelSerializer):
             'gallery',
             'created_at',
         ]
-        read_only_fields = ['id', 'slug', 'rating', 'created_at', 'gallery']
+        read_only_fields = ['id', 'slug', 'rating', 'created_at']
 
