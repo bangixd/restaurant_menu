@@ -1,13 +1,13 @@
 from rest_framework import generics, permissions, serializers
 from .models import Order
-from .serializers import OrderSerializer
-
-class IsOrderOwner(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        return obj.user == request.user
+from .serializers import OrderSerializer, RestaurantOrderSerializer
+from .permissions import IsOrderOwner, IsRestaurantOwner
 
 
 class OrderListCreateView(generics.ListCreateAPIView):
+    """
+    create and list api for orders by customer
+    """
     serializer_class = OrderSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -19,6 +19,9 @@ class OrderListCreateView(generics.ListCreateAPIView):
 
 
 class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    edit and delete orders in pending status by customer
+    """
     serializer_class = OrderSerializer
     permission_classes = [permissions.IsAuthenticated, IsOrderOwner]
 
@@ -35,3 +38,25 @@ class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
         if instance.status != 'pending':
             raise serializers.ValidationError("فقط سفارش‌های در حال بررسی قابل حذف هستند.")
         instance.delete()
+
+
+class OwnerOrderListView(generics.ListAPIView):
+    """
+    list of orders for restaurant owner
+    """
+    serializer_class = RestaurantOrderSerializer
+    permission_classes = [IsRestaurantOwner]
+
+    def get_queryset(self):
+        return Order.objects.filter(restaurant__owner=self.request.user)
+
+
+class OwnerOrderDetailView(generics.RetrieveUpdateAPIView):
+    """
+    update status of orders by restaurant owner
+    """
+    serializer_class = RestaurantOrderSerializer
+    permission_classes = [IsRestaurantOwner]
+
+    def get_queryset(self):
+        return Order.objects.filter(restaurant__owner=self.request.user)

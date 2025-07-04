@@ -2,10 +2,12 @@ from rest_framework import serializers
 from .models import Order, OrderItem
 from restaurants.models import MenuItem  # اگر MenuItem در app دیگری هست
 
+
 class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
         fields = ['menu_item', 'quantity']
+
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True)
@@ -37,3 +39,10 @@ class OrderSerializer(serializers.ModelSerializer):
                 OrderItem.objects.create(order=instance, **item)
 
         return instance
+
+
+class RestaurantOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ['id', 'user', 'restaurant', 'status', 'created_at', 'items']
+        read_only_fields = ['id', 'user', 'restaurant', 'created_at', 'items']
