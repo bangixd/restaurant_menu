@@ -1,11 +1,20 @@
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status, generics, permissions
+from .models import OTP
+import random
+from .serializers import UserProfileSerializer, VerifyOTPSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import IsAuthenticated
 from .models import User
-from rest_framework import status
-from .models import OTP
-import random
+
+
+class UserProfileView(generics.RetrieveUpdateAPIView):
+    serializer_class = UserProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
 
 
 class SendOTPView(APIView):
@@ -22,35 +31,47 @@ class SendOTPView(APIView):
         return Response({'message': 'کد تایید ارسال شد'})
 
 
+# class VerifyOTPView(APIView):
+#     def post(self, request):
+#         phone = request.data.get('phone')
+#         code = request.data.get('code')
+#
+#         try:
+#             otp = OTP.objects.filter(phone=phone, code=code, verified=False).latest('created_at')
+#         except OTP.DoesNotExist:
+#             return Response({'error': 'کد تایید نا معتبر است'}, status=400)
+#
+#         if not otp.is_invalid():
+#             return Response({'error': 'کد منقضی شده'}, status=400)
+#
+#         otp.verified = True
+#         otp.save()
+#
+#         user, created = User.objects.get_or_create(phone=phone)
+#
+#         refresh = RefreshToken.for_user(user)
+#
+#         return Response({
+#             'refresh': str(refresh),
+#             'access': str(refresh.access_token),
+#             'user': {
+#                 'id': user.id,
+#                 'phone': user.phone,
+#                 'role': user.role,
+#             }
+#         })
+
 class VerifyOTPView(APIView):
     def post(self, request):
-        phone = request.data.get('phone')
-        code = request.data.get('code')
-
-        try:
-            otp = OTP.objects.filter(phone=phone, code=code, verified=False).latest('created_at')
-        except OTP.DoesNotExist:
-            return Response({'error': 'کد تایید نا معتبر است'}, status=400)
-
-        if not otp.is_invalid():
-            return Response({'error': 'کد منقضی شده'}, status=400)
-
-        otp.verified = True
-        otp.save()
-
-        user, created = User.objects.get_or_create(phone=phone)
+        serializer = VerifyOTPSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
 
         refresh = RefreshToken.for_user(user)
-
         return Response({
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-            'user': {
-                'id': user.id,
-                'phone': user.phone,
-                'role': user.role,
-            }
-        })
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+        }, status=200)
 
 
 class LogoutView(APIView):

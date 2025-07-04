@@ -21,6 +21,11 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
+    GENDER_CHOICES = [
+        ('male', 'آقا'),
+        ('female', 'خانم'),
+        ('other', 'سایر...'),
+    ]
     ROLE_CHOICES = (
         ('customer', 'کاربر مشتری'),
         ('owner', 'کاربر مدیر رستوران'),
@@ -29,6 +34,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     phone = models.CharField(max_length=15, unique=True)
     full_name = models.CharField(max_length=100, blank=True)
+    birth_date = models.DateField(null=True, blank=True)
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, null=True, blank=True)
+    
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='customer')
 
     is_active = models.BooleanField(default=True)
