@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import MenuCategory, MenuItem, Restaurant, RestaurantGallery
+from .models import MenuCategory, MenuItem, Restaurant, RestaurantGallery, RestaurantOpeningHour
 
 
 class MenuItemSerializer(serializers.ModelSerializer):
@@ -23,8 +23,17 @@ class RestaurantGallerySerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'uploaded_at']
 
 
+class RestaurantOpeningHourSerializer(serializers.ModelSerializer):
+    day_display = serializers.CharField(source='get_day_display', read_only=True)
+
+    class Meta:
+        model = RestaurantOpeningHour
+        fields = ['id', 'day', 'day_display', 'open_time', 'close_time']
+
+
 class RestaurantSerializer(serializers.ModelSerializer):
     gallery = RestaurantGallerySerializer(many=True, read_only=True)
+    opening_hours = RestaurantOpeningHourSerializer(many=True, read_only=True)
     slug = serializers.SlugField(read_only=True)
 
     class Meta:
@@ -43,6 +52,7 @@ class RestaurantSerializer(serializers.ModelSerializer):
             'banner',
             'rating',
             'gallery',
+            'opening_hours',
             'created_at',
         ]
         read_only_fields = ['id', 'slug', 'rating', 'created_at']

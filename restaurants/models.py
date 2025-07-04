@@ -48,6 +48,30 @@ class RestaurantGallery(models.Model):
         return f"Image for {self.restaurant.name}"
 
 
+class RestaurantOpeningHour(models.Model):
+    DAYS_OF_WEEK = [
+        ('sat', 'شنبه'),
+        ('sun', 'یک‌شنبه'),
+        ('mon', 'دو‌شنبه'),
+        ('tue', 'سه‌شنبه'),
+        ('wed', 'چهار‌شنبه'),
+        ('thu', 'پنج‌شنبه'),
+        ('fri', 'جمعه'),
+    ]
+
+    restaurant = models.ForeignKey('Restaurant', related_name='opening_hours', on_delete=models.CASCADE)
+    day = models.CharField(max_length=3, choices=DAYS_OF_WEEK)
+    open_time = models.TimeField()
+    close_time = models.TimeField()
+
+    class Meta:
+        unique_together = ('restaurant', 'day')
+        ordering = ['day']
+
+    def __str__(self):
+        return f"{self.restaurant.name} - {self.get_day_display()}: {self.open_time} تا {self.close_time}"
+
+
 
 class MenuCategory(models.Model):
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='categories')

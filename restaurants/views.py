@@ -1,8 +1,8 @@
 from rest_framework import viewsets, permissions, generics
 from rest_framework.exceptions import PermissionDenied
 from .permissions import IsRestaurantOwner, IsCategoryOwner, IsMenuItemOwner
-from .models import Restaurant, MenuCategory, MenuItem, RestaurantGallery
-from .serializers import RestaurantSerializer, MenuCategorySerializer, MenuItemSerializer, RestaurantGallerySerializer
+from .models import Restaurant, MenuCategory, MenuItem, RestaurantGallery, RestaurantOpeningHour
+from .serializers import RestaurantSerializer, MenuCategorySerializer, MenuItemSerializer, RestaurantGallerySerializer, RestaurantOpeningHourSerializer
 
 
 class RestaurantListView(generics.ListAPIView):
@@ -151,3 +151,29 @@ class RestaurantGalleryDeleteView(generics.DestroyAPIView):
         obj = super().get_object()
         self.check_object_permissions(self.request, obj)
         return obj
+
+
+class RestaurantOpeningHourListCreateView(generics.ListCreateAPIView):
+    """
+    create or list opening hour
+    """
+    serializer_class = RestaurantOpeningHourSerializer
+    permission_classes = [IsRestaurantOwner]
+
+    def get_queryset(self):
+        return RestaurantOpeningHour.objects.filter(restaurant__owner=self.request.user)
+
+    def perform_create(self, serializer):
+        restaurant = Restaurant.objects.get(owner=self.request.user)
+        serializer.save(restaurant=restaurant)
+
+
+class RestaurantOpeningHourDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    delete and update opening hour
+    """
+    serializer_class = RestaurantOpeningHourSerializer
+    permission_classes = [IsRestaurantOwner]
+
+    def get_queryset(self):
+        return RestaurantOpeningHour.objects.filter(restaurant__owner=self.request.user)
