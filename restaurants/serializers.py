@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Restaurant, MenuCategory, MenuItem
+from .models import MenuCategory, MenuItem, Restaurant, RestaurantGallery
 
 
 class MenuItemSerializer(serializers.ModelSerializer):
@@ -16,9 +16,34 @@ class MenuCategorySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class RestaurantGallerySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RestaurantGallery
+        fields = ['id', 'image', 'uploaded_at']
+        read_only_fields = ['id', 'uploaded_at']
+
+
 class RestaurantSerializer(serializers.ModelSerializer):
-    categories = MenuCategorySerializer(many=True, read_only=True)
+    gallery = RestaurantGallerySerializer(many=True, read_only=True)
+    slug = serializers.SlugField(read_only=True)
 
     class Meta:
         model = Restaurant
-        fields = '__all__'
+        fields = [
+            'id',
+            'name',
+            'slug',
+            'short_description',
+            'about',
+            'address',
+            'location',
+            'phone_number',
+            'instagram',
+            'telegram',
+            'banner',
+            'rating',
+            'gallery',
+            'created_at',
+        ]
+        read_only_fields = ['id', 'slug', 'rating', 'created_at', 'gallery']
+
