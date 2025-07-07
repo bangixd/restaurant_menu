@@ -6,13 +6,16 @@ class RestaurantGalleryInline(admin.TabularInline):
     model = RestaurantGallery
     extra = 1
 
+
 class RestaurantVideoInline(admin.TabularInline):
     model = RestaurantVideo
     extra = 1
 
+
 class OpeningHourInline(admin.TabularInline):
     model = RestaurantOpeningHour
     extra = 1
+
 
 @admin.register(Restaurant)
 class RestaurantAdmin(admin.ModelAdmin):
