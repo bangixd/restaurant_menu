@@ -6,15 +6,20 @@ from django.utils.text import slugify
 class Restaurant(models.Model):
     owner = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="restaurant")
     name = models.CharField(max_length=100)
+    eng_name = models.CharField(max_length=100, null=True, blank=True)
 
+    slogan = models.CharField(max_length=255, blank=True, null=True, verbose_name='شعار رستوران')
     short_description = models.CharField(max_length=255, blank=True)
     about = models.TextField(blank=True)
+
+    logo = models.ImageField(upload_to='restaurant/logos/', blank=True, null=True, verbose_name='لوگوی رستوران')
 
     slug = models.SlugField(unique=True, blank=True)
 
     address = models.CharField(max_length=255, blank=True)
     location = models.JSONField(null=True, blank=True)  # {'lat': ..., 'lng': ...}
-    phone_number = models.CharField(max_length=20, blank=True)
+    phone_number1 = models.CharField(max_length=20, blank=True)
+    phone_number2 = models.CharField(max_length=20, blank=True)
 
     instagram = models.URLField(blank=True)
     telegram = models.URLField(blank=True)
@@ -48,6 +53,16 @@ class RestaurantGallery(models.Model):
         return f"Image for {self.restaurant.name}"
 
 
+class RestaurantVideo(models.Model):
+    restaurant = models.ForeignKey('Restaurant', related_name='videos', on_delete=models.CASCADE)
+    title = models.CharField(max_length=100, blank=True)
+    video = models.FileField(upload_to='restaurant/videos/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.restaurant.name} - {self.title or "ویدیو"}'
+
+
 class RestaurantOpeningHour(models.Model):
     DAYS_OF_WEEK = [
         ('sat', 'شنبه'),
@@ -71,6 +86,22 @@ class RestaurantOpeningHour(models.Model):
     def __str__(self):
         return f"{self.restaurant.name} - {self.get_day_display()}: {self.open_time} تا {self.close_time}"
 
+
+class RestaurantComment(models.Model):
+    restaurant = models.ForeignKey('Restaurant', on_delete=models.CASCADE, related_name='comments')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    text = models.TextField(verbose_name='متن نظر')
+    rating = models.PositiveSmallIntegerField(verbose_name='امتیاز (از ۵)', default=5)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_approved = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'نظر رستوران'
+        verbose_name_plural = 'نظرات رستوران'
+
+    def __str__(self):
+        return f"{self.user} -> {self.restaurant} ({self.rating}/5)"
 
 
 class MenuCategory(models.Model):

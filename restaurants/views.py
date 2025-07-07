@@ -1,8 +1,9 @@
 from rest_framework import viewsets, permissions, generics
 from rest_framework.exceptions import PermissionDenied
 from .permissions import IsRestaurantOwner, IsCategoryOwner, IsMenuItemOwner
-from .models import Restaurant, MenuCategory, MenuItem, RestaurantGallery, RestaurantOpeningHour
-from .serializers import RestaurantSerializer, MenuCategorySerializer, MenuItemSerializer, RestaurantGallerySerializer, RestaurantOpeningHourSerializer
+from .models import Restaurant, MenuCategory, MenuItem, RestaurantGallery, RestaurantOpeningHour, RestaurantComment
+from .serializers import RestaurantSerializer, MenuCategorySerializer, MenuItemSerializer, RestaurantGallerySerializer,\
+    RestaurantOpeningHourSerializer, RestaurantCommentSerializer
 
 
 class RestaurantListView(generics.ListAPIView):
@@ -177,3 +178,21 @@ class RestaurantOpeningHourDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return RestaurantOpeningHour.objects.filter(restaurant__owner=self.request.user)
+
+
+class RestaurantCommentListCreateView(generics.ListCreateAPIView):
+    queryset = RestaurantComment.objects.all()
+    serializer_class = RestaurantCommentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class RestaurantCommentByRestaurantView(generics.ListAPIView):
+    serializer_class = RestaurantCommentSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        restaurant_id = self.kwargs['restaurant_id']
+        return RestaurantComment.objects.filter(restaurant_id=restaurant_id)
