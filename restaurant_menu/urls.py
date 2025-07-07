@@ -24,6 +24,9 @@ urlpatterns = [
     path('api/auth/', include('accounts.urls')),
     path('api/restaurant/', include('restaurants.urls')),
     path('api/orders/', include('orders.urls')),
+    path('api/blogs/', include('blog.urls')),
+
+    path('ckeditor/', include('ckeditor_uploader.urls')),
 
     # swagger routes
     path('api-auth/', include('rest_framework.urls')),

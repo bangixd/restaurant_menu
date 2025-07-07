@@ -34,10 +34,14 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'drf_yasg',
 
+    # editor
+    'ckeditor',
+
     'accounts',
     'restaurants',
     'payments',
     'orders',
+    'blog',
 ]
 
 MIDDLEWARE = [
@@ -119,6 +123,7 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
+CKEDITOR_UPLOAD_PATH = "uploads/"
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
