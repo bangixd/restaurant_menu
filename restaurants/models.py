@@ -7,13 +7,13 @@ from django.utils import timezone
 class Restaurant(models.Model):
     owner = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="restaurant")
     name = models.CharField(max_length=100)
-    eng_name = models.CharField(max_length=100, null=True, blank=True)
+    eng_name = models.CharField(max_length=100, null=True, blank=True, default=f'restaurant{owner}')
 
     slogan = models.CharField(max_length=255, blank=True, null=True, verbose_name='شعار رستوران')
     short_description = models.CharField(max_length=255, blank=True)
     about = models.TextField(blank=True)
 
-    logo = models.ImageField(upload_to='restaurant/logos/', blank=True, null=True, verbose_name='لوگوی رستوران')
+    logo = models.ImageField(upload_to=f'restaurant/logos/{eng_name}/', blank=True, null=True, verbose_name='لوگوی رستوران')
 
     slug = models.SlugField(unique=True, blank=True)
 
@@ -25,7 +25,7 @@ class Restaurant(models.Model):
     instagram = models.URLField(blank=True)
     telegram = models.URLField(blank=True)
 
-    banner = models.ImageField(upload_to='restaurant_banners/', null=True, blank=True)
+    banner = models.ImageField(upload_to=f'restaurant_banners/{eng_name}/', null=True, blank=True)
     rating = models.FloatField(default=0.0)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -47,7 +47,7 @@ class Restaurant(models.Model):
 
 class RestaurantGallery(models.Model):
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='gallery')
-    image = models.ImageField(upload_to='restaurant_gallery/')
+    image = models.ImageField(upload_to=f'restaurant_gallery/{restaurant.eng_name}/')
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -57,7 +57,7 @@ class RestaurantGallery(models.Model):
 class RestaurantVideo(models.Model):
     restaurant = models.ForeignKey('Restaurant', related_name='videos', on_delete=models.CASCADE)
     title = models.CharField(max_length=100, blank=True)
-    video = models.FileField(upload_to='restaurant/videos/')
+    video = models.FileField(upload_to=f'restaurant/videos/{restaurant.eng_name}/')
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -143,7 +143,7 @@ class MenuItem(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    image = models.ImageField(upload_to='menu_items/', null=True, blank=True)
+    image = models.ImageField(upload_to=f'menu_items/{category.restaurant.eng_name}/', null=True, blank=True)
     is_available = models.BooleanField(default=True)
 
     def __str__(self):
