@@ -2,7 +2,8 @@ from rest_framework.routers import DefaultRouter
 from django.urls import path, include
 from .views import MenuItemDetailView, MenuCategoryDetailView, MenuItemListCreateView, MenuCategoryListCreateView,\
      RestaurantGalleryListCreateView, RestaurantGalleryDeleteView, RestaurantListView, RestaurantRetrieveUpdateView,\
-     RestaurantDetailView, RestaurantOpeningHourListCreateView, RestaurantOpeningHourDetailView
+     RestaurantDetailView, RestaurantOpeningHourListCreateView, RestaurantOpeningHourDetailView, TableCallCreateView,\
+     TableCallListView, ResolveCallView
 
 
 urlpatterns = [
@@ -21,4 +22,8 @@ urlpatterns = [
 
     path('my-restaurant/gallery/', RestaurantGalleryListCreateView.as_view(), name='restaurant-gallery'),
     path('my-restaurant/gallery/<int:pk>/delete/', RestaurantGalleryDeleteView.as_view(), name='delete-gallery-image'),
+
+    path('<slug:restaurant_slug>/call/', TableCallCreateView.as_view(), name='table-call'),
+    path('my-restaurant/table-calls/', TableCallListView.as_view(), name='table-call-list'),
+    path('my-restaurant/table-calls/<int:pk>/resolve/', ResolveCallView.as_view(), name='resolve-call'),
 ]

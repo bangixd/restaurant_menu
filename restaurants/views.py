@@ -1,9 +1,12 @@
 from rest_framework import viewsets, permissions, generics
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.views import APIView
+from rest_framework.exceptions import PermissionDenied, NotFound
+from rest_framework.response import Response
 from .permissions import IsRestaurantOwner, IsCategoryOwner, IsMenuItemOwner
-from .models import Restaurant, MenuCategory, MenuItem, RestaurantGallery, RestaurantOpeningHour, RestaurantComment
+from .models import Restaurant, MenuCategory, MenuItem, RestaurantGallery, RestaurantOpeningHour, RestaurantComment, TableCall
 from .serializers import RestaurantSerializer, MenuCategorySerializer, MenuItemSerializer, RestaurantGallerySerializer,\
-    RestaurantOpeningHourSerializer, RestaurantCommentSerializer
+    RestaurantOpeningHourSerializer, RestaurantCommentSerializer, TableCallSerializer
+from rest_framework.throttling import UserRateThrottle
 
 
 class RestaurantListView(generics.ListAPIView):
@@ -196,3 +199,45 @@ class RestaurantCommentByRestaurantView(generics.ListAPIView):
     def get_queryset(self):
         restaurant_id = self.kwargs['restaurant_id']
         return RestaurantComment.objects.filter(restaurant_id=restaurant_id)
+
+
+class WaiterCallThrottle(UserRateThrottle):
+    rate = '2/min'
+
+
+class TableCallCreateView(generics.CreateAPIView):
+    serializer_class = TableCallSerializer
+    throttle_classes = [WaiterCallThrottle]
+
+    def perform_create(self, serializer):
+        slug = self.kwargs.get('restaurant_slug')
+        try:
+            restaurant = Restaurant.objects.get(slug=slug)
+        except Restaurant.DoesNotExist:
+            raise NotFound("رستوران مورد نظر یافت نشد.")
+
+        serializer.save(restaurant=restaurant, user=self.request.user)
+
+
+class TableCallListView(generics.ListAPIView):
+    serializer_class = TableCallSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return TableCall.objects.filter(
+            restaurant__owner=self.request.user
+        )
+
+
+class ResolveCallView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            call = TableCall.objects.get(pk=pk, restaurant__owner=request.user)
+        except TableCall.DoesNotExist:
+            return Response({"detail": "درخواست یافت نشد."}, status=404)
+
+        call.is_resolved = True
+        call.save()
+        return Response({"detail": "درخواست حل شد."})

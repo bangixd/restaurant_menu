@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils.text import slugify
+from django.utils import timezone
 
 
 class Restaurant(models.Model):
@@ -102,6 +103,31 @@ class RestaurantComment(models.Model):
 
     def __str__(self):
         return f"{self.user} -> {self.restaurant} ({self.rating}/5)"
+
+
+class TableCall(models.Model):
+    restaurant = models.ForeignKey(
+        Restaurant,
+        on_delete=models.CASCADE,
+        related_name='table_calls'
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='table_calls'
+    )
+    table_number = models.PositiveIntegerField()
+    message = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    is_resolved = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'Table {self.table_number} - {self.restaurant.name}'
 
 
 class MenuCategory(models.Model):
