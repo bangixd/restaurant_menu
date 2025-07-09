@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Restaurant, MenuCategory, MenuItem, RestaurantGallery, RestaurantVideo, RestaurantOpeningHour
+from .models import Restaurant, MenuCategory, MenuItem, RestaurantGallery, RestaurantVideo, RestaurantOpeningHour, TableCall
 
 
 class RestaurantGalleryInline(admin.TabularInline):
@@ -67,3 +67,10 @@ class MenuItemAdmin(admin.ModelAdmin):
     list_display = ('name', 'category', 'price', 'is_available')
     search_fields = ('name', 'category__title')
     list_filter = ('category__restaurant', 'is_available')
+
+
+@admin.register(TableCall)
+class TableCallAdmin(admin.ModelAdmin):
+    list_display = ['id', 'restaurant', 'user', 'table_number', 'is_resolved', 'created_at']
+    list_filter = ['restaurant', 'is_resolved']
+    search_fields = ['table_number', 'restaurant__name', 'user__phone']

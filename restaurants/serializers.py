@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import MenuCategory, MenuItem, Restaurant, RestaurantGallery, RestaurantOpeningHour, RestaurantVideo, RestaurantComment
+from .models import MenuCategory, MenuItem, Restaurant, RestaurantGallery, RestaurantOpeningHour, RestaurantVideo,\
+    RestaurantComment, TableCall
 
 
 class MenuItemSerializer(serializers.ModelSerializer):
@@ -82,3 +83,10 @@ class RestaurantCommentSerializer(serializers.ModelSerializer):
         model = RestaurantComment
         fields = ['id', 'restaurant', 'user', 'text', 'rating', 'created_at']
         read_only_fields = ['user', 'created_at']
+
+
+class TableCallSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TableCall
+        fields = ['id', 'restaurant', 'user', 'table_number', 'message', 'created_at', 'is_resolved']
+        read_only_fields = ['id', 'user', 'created_at', 'is_resolved', 'restaurant']
