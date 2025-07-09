@@ -82,12 +82,8 @@ WSGI_APPLICATION = 'restaurant_menu.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'cp61913_bestmenumarket',
-        'USER': 'cp61913_root',
-        'PASSWORD': 'waAq7YZWAeo?bm5w',
-        'HOST': 'localhost',  # Or the IP address/hostname of your MySQL server
-        'PORT': '3306',       # Default MySQL port
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 

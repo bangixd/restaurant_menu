@@ -21,10 +21,10 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/auth/', include('accounts.urls')),
-    path('api/restaurant/', include('restaurants.urls')),
-    path('api/orders/', include('orders.urls')),
-    path('api/blogs/', include('blog.urls')),
+    path('auth/', include('accounts.urls')),
+    path('restaurant/', include('restaurants.urls')),
+    path('orders/', include('orders.urls')),
+    path('blogs/', include('blog.urls')),
 
     path('ckeditor/', include('ckeditor_uploader.urls')),
 

@@ -6,8 +6,8 @@ from .views import MenuItemDetailView, MenuCategoryDetailView, MenuItemListCreat
 
 
 urlpatterns = [
-    path('restaurants/', RestaurantListView.as_view(), name='restaurant-list'),
-    path('restaurants/<slug:slug>/', RestaurantDetailView.as_view(), name='restaurant-detail'),
+    path('', RestaurantListView.as_view(), name='restaurant-list'),
+    path('<slug:slug>/', RestaurantDetailView.as_view(), name='restaurant-detail'),
     path('my-restaurant/', RestaurantRetrieveUpdateView.as_view(), name='my-restaurant'),
 
     path('menu-categories/', MenuCategoryListCreateView.as_view(), name='menu-category-list-create'),
@@ -19,6 +19,6 @@ urlpatterns = [
     path('opening-hour/', RestaurantOpeningHourListCreateView.as_view(), name='opening-hour-list-create'),
     path('opening-hour/<int:id>/', RestaurantOpeningHourDetailView.as_view(), name='opening-hour-detail'),
 
-    path('restaurant/gallery/', RestaurantGalleryListCreateView.as_view(), name='restaurant-gallery'),
-    path('restaurant/gallery/<int:pk>/delete/', RestaurantGalleryDeleteView.as_view(), name='delete-gallery-image'),
+    path('my-restaurant/gallery/', RestaurantGalleryListCreateView.as_view(), name='restaurant-gallery'),
+    path('my-restaurant/gallery/<int:pk>/delete/', RestaurantGalleryDeleteView.as_view(), name='delete-gallery-image'),
 ]
