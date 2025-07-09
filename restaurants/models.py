@@ -31,7 +31,7 @@ class Restaurant(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            base_slug = slugify(self.name)
+            base_slug = slugify(self.eng_name)
             slug = base_slug
             counter = 1
             while Restaurant.objects.filter(slug=slug).exists():
