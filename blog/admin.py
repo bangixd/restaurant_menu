@@ -18,7 +18,7 @@ class BlogAdmin(admin.ModelAdmin):
     readonly_fields = ['created_at', 'updated_at']
     fieldsets = (
         ('اطلاعات اصلی', {
-            'fields': ('title', 'slug', 'category', 'content', 'cover_image')
+            'fields': ('title', 'slug', 'category', 'content', 'cover_image', 'reading_time')
         }),
         ('وضعیت و زمان‌بندی', {
             'fields': ('is_published', 'created_at', 'updated_at')
