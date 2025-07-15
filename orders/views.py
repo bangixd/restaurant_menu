@@ -2,6 +2,7 @@ from rest_framework import generics, permissions, serializers
 from .models import Order
 from .serializers import OrderSerializer, RestaurantOrderSerializer
 from .permissions import IsOrderOwner, IsRestaurantOwner
+from .utils import is_restaurant_open
 
 
 class OrderListCreateView(generics.ListCreateAPIView):
@@ -15,6 +16,11 @@ class OrderListCreateView(generics.ListCreateAPIView):
         return Order.objects.filter(user=self.request.user).order_by('-created_at')
 
     def perform_create(self, serializer):
+        restaurant = serializer.validated_data['restaurant']
+
+        if not is_restaurant_open(restaurant):
+            raise serializers.ValidationError({'detail': 'رستوران در حال حاضر بسته است.'})
+
         serializer.save(user=self.request.user)
 
 

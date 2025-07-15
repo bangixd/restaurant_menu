@@ -10,6 +10,7 @@ class Order(models.Model):
     status = models.CharField(max_length=20, choices=[
         ('pending', 'در حال بررسی'),
         ('confirmed', 'تأیید شده'),
+        ('cancelled', 'لغو شده'),
         ('delivered', 'تحویل داده شده'),
     ], default='pending')
 
