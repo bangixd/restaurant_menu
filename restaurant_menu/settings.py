@@ -39,11 +39,12 @@ INSTALLED_APPS = [
     # editor
     'ckeditor',
 
-    'accounts',
-    'restaurants',
-    'payments',
-    'orders',
-    'blog',
+    'accounts.apps.AccountsConfig',
+    'restaurants.apps.RestaurantsConfig',
+    'payments.apps.PaymentsConfig',
+    'orders.apps.OrdersConfig',
+    'blog.apps.BlogConfig',
+    'loyalties.apps.LoyaltiesConfig',
 ]
 
 MIDDLEWARE = [

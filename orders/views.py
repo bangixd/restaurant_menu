@@ -19,8 +19,8 @@ class OrderListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         restaurant = serializer.validated_data['restaurant']
 
-        # if not is_restaurant_open(restaurant):
-        #     raise serializers.ValidationError({'detail': 'رستوران در حال حاضر بسته است.'})
+        if not is_restaurant_open(restaurant):
+            raise serializers.ValidationError({'detail': 'رستوران در حال حاضر بسته است.'})
 
         serializer.save(user=self.request.user)
 
