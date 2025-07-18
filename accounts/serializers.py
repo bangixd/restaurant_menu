@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from .models import User, OTP
+from .models import User, OTP, PhoneNumber
 from django.utils import timezone
+from django.core.validators import RegexValidator
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -45,3 +46,18 @@ class VerifyOTPSerializer(serializers.Serializer):
         )
 
         return user
+
+
+class PhoneNumberSerializer(serializers.ModelSerializer):
+    phone = serializers.CharField(
+        validators=[
+            RegexValidator(
+                regex=r'^09\d{9}$',
+                message='شماره موبایل باید با 09 شروع شده و 11 رقم باشد.'
+            )
+        ]
+    )
+    class Meta:
+        model = PhoneNumber
+        fields = ['phone']
+

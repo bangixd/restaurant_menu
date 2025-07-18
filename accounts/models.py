@@ -1,5 +1,6 @@
 from django.db import models
 import random
+from django.core.validators import RegexValidator
 from datetime import timedelta
 from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
@@ -63,3 +64,21 @@ class OTP(models.Model):
     def __str__(self):
         return f'{self.phone} - {self.code} ({"done" if self.verified else "failed"})'
 
+
+
+iran_phone_validator = RegexValidator(
+    regex=r'^09\d{9}$',
+    message='شماره موبایل باید با 09 شروع شده و 11 رقم باشد.'
+)
+
+
+class PhoneNumber(models.Model):
+    phone = models.CharField(max_length=15, unique=True, verbose_name="شماره موبایل", validators=[iran_phone_validator])
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ثبت")
+
+    def __str__(self):
+        return self.phone
+
+    class Meta:
+        verbose_name = "شماره موبایل"
+        verbose_name_plural = "شماره‌های موبایل"

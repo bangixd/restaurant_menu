@@ -1,12 +1,11 @@
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status, generics, permissions
-from .models import OTP
+from .models import OTP, PhoneNumber, User
 import random
-from .serializers import UserProfileSerializer, VerifyOTPSerializer
+from .serializers import UserProfileSerializer, VerifyOTPSerializer, PhoneNumberSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import User
 
 
 class UserProfileView(generics.RetrieveUpdateAPIView):
@@ -85,3 +84,9 @@ class LogoutView(APIView):
             return Response(status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class PhoneNumberCreateView(generics.CreateAPIView):
+    queryset = PhoneNumber.objects.all()
+    serializer_class = PhoneNumberSerializer
+    permission_classes = [permissions.AllowAny]  # بدون نیاز به احراز هویت
