@@ -19,7 +19,7 @@ class OpeningHourInline(admin.TabularInline):
 
 @admin.register(Restaurant)
 class RestaurantAdmin(admin.ModelAdmin):
-    list_display = ['name', 'slug', 'phone_number1', 'phone_number2', 'rating', 'address', 'slogan']
+    list_display = ['owner', 'name', 'slug', 'phone_number1', 'phone_number2', 'rating', 'address', 'slogan']
     list_filter = ['rating']
     search_fields = ['name', 'slug', 'phone_number1']
 
@@ -28,7 +28,7 @@ class RestaurantAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('name', 'slug', 'slogan', 'short_description', 'description', 'phone_number1', 'phone_number2',
+            'fields': ('owner', 'name', 'slug', 'slogan', 'short_description', 'phone_number1', 'phone_number2',
                        'address', 'location', 'rating')
         }),
         ('ارتباطات', {
@@ -52,7 +52,6 @@ class RestaurantAdmin(admin.ModelAdmin):
         return "-"
     preview_banner.allow_tags = True
     preview_banner.short_description = 'پیش‌نمایش بنر'
-
 
 
 @admin.register(MenuCategory)
