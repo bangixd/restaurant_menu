@@ -39,6 +39,9 @@ INSTALLED_APPS = [
     # editor
     'ckeditor',
 
+    # channels
+    'channels',
+
     'accounts',
     'restaurants',
     'payments',
@@ -167,4 +170,15 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'API documentation for restaurant menu and ordering system',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
+}
+
+# Chat Online Channels
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
 }
