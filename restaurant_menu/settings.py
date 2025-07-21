@@ -42,11 +42,13 @@ INSTALLED_APPS = [
     # channels
     'channels',
 
-    'accounts',
-    'restaurants',
-    'payments',
-    'orders',
-    'blog',
+    'accounts.apps.AccountsConfig',
+    'restaurants.apps.RestaurantsConfig',
+    'payments.apps.PaymentsConfig',
+    'orders.apps.OrdersConfig',
+    'blog.apps.BlogConfig',
+    'loyalties.apps.LoyaltiesConfig',
+    'chat.apps.ChatConfig',
 ]
 
 MIDDLEWARE = [
