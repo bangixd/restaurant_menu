@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Order, OrderItem
-from restaurants.models import MenuItem  # اگر MenuItem در app دیگری هست
+from restaurants.models import MenuItem
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -60,7 +60,7 @@ class RestaurantOrderSerializer(serializers.ModelSerializer):
 class InvoiceItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
-        fields = ['menu_item', 'quantity', 'price']
+        fields = ['menu_item', 'quantity', 'total_price']
 
 
 class OrderInvoiceSerializer(serializers.ModelSerializer):

@@ -70,6 +70,7 @@ class RestaurantSerializer(serializers.ModelSerializer):
             'banner',
             'rating',
             'gallery',
+            'videos',
             'opening_hours',
             'created_at',
         ]
