@@ -28,6 +28,8 @@ class Restaurant(models.Model):
     banner = models.ImageField(upload_to='restaurant_banners/', null=True, blank=True)
     rating = models.FloatField(default=0.0)
 
+    zarinpal_merchant_id = models.CharField(max_length=50, null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):

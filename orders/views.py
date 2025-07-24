@@ -1,5 +1,8 @@
-from rest_framework import generics, permissions, serializers
-from .models import Order
+from rest_framework import generics, permissions, serializers, status
+import requests
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from .models import Order, Payment
 from .serializers import OrderSerializer, RestaurantOrderSerializer, InvoiceItemSerializer, OrderInvoiceSerializer
 from django.utils.dateparse import parse_date
 from .permissions import IsOrderOwner, IsRestaurantOwner
@@ -127,3 +130,71 @@ class RestaurantOrdersInvoiceView(generics.ListAPIView):
             queryset = queryset.filter(user__full_name__icontains=search)
 
         return queryset.order_by('-created_at')
+
+
+class StartPaymentView(APIView):
+    def post(self, request, order_id):
+        try:
+            order = Order.objects.get(id=order_id, user=request.user, is_paid=False)
+        except Order.DoesNotExist:
+            return Response({'detail': 'سفارش یافت نشد یا قبلا پرداخت شده'}, status=404)
+
+        merchant_id = order.restaurant.zarinpal_merchant_id
+        if not merchant_id:
+            return Response({'detail': 'درگاه پرداخت برای این رستوران تنظیم نشده'}, status=400)
+
+        amount = order.total_amount  # مبلغ به تومان
+        callback_url = f'https://bestmenumarket.com/api/payment/verify/'  # آدرس بازگشت بعد از پرداخت
+
+        data = {
+            "merchant_id": merchant_id,
+            "amount": amount * 10,  # تبدیل به ریال
+            "callback_url": callback_url,
+            "description": f"پرداخت سفارش #{order.id}",
+        }
+
+        response = requests.post('https://api.zarinpal.com/pg/v4/payment/request.json', json=data)
+        res_data = response.json()
+
+        if res_data['data'].get('code') == 100:
+            authority = res_data['data']['authority']
+            Payment.objects.create(order=order, authority=authority)
+            payment_url = f'https://www.zarinpal.com/pg/StartPay/{authority}'
+            return Response({'payment_url': payment_url})
+        else:
+            return Response({'detail': 'خطا در ارتباط با درگاه پرداخت'}, status=500)
+
+class VerifyPaymentView(APIView):
+    def get(self, request):
+        authority = request.query_params.get('Authority')
+        status_payment = request.query_params.get('Status')
+
+        if status_payment != 'OK':
+            return Response({'detail': 'پرداخت توسط کاربر لغو شد'}, status=400)
+
+        try:
+            payment = Payment.objects.get(authority=authority)
+        except Payment.DoesNotExist:
+            return Response({'detail': 'پرداخت یافت نشد'}, status=404)
+
+        merchant_id = payment.order.restaurant.zarinpal_merchant_id
+        data = {
+            "merchant_id": merchant_id,
+            "amount": payment.order.total_amount * 10,
+            "authority": authority,
+        }
+
+        response = requests.post('https://api.zarinpal.com/pg/v4/payment/verify.json', json=data)
+        res_data = response.json()
+
+        if res_data['data'].get('code') == 100:
+            payment.is_paid = True
+            payment.ref_id = res_data['data']['ref_id']
+            payment.save()
+
+            payment.order.is_paid = True
+            payment.order.save()
+
+            return Response({'detail': 'پرداخت با موفقیت انجام شد', 'ref_id': payment.ref_id})
+        else:
+            return Response({'detail': 'پرداخت تایید نشد'}, status=400)

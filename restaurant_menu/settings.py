@@ -44,7 +44,6 @@ INSTALLED_APPS = [
 
     'accounts.apps.AccountsConfig',
     'restaurants.apps.RestaurantsConfig',
-    'payments.apps.PaymentsConfig',
     'orders.apps.OrdersConfig',
     'blog.apps.BlogConfig',
     'loyalties.apps.LoyaltiesConfig',
